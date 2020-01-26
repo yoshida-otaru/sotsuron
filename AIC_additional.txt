@@ -1,0 +1,158 @@
+library(forecast)
+library(CombMSC)
+
+
+#実験で設定する変数
+P <- 1		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数P(1 or 2)
+D <- 0		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数D(0 or 1)
+Q <- 1		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数Q(1 or 2)
+
+#定義しておく変数
+p_arima12 <- 0
+q_arima12 <- 0
+d_arima12 <- 0
+p_sarima12 <- 0
+q_sarima12 <- 0
+P_sarima12 <- 0
+Q_sarima12 <- 0
+d_sarima12 <- 0
+D_sarima12 <- 0
+p_arima120 <- 0
+q_arima120 <- 0
+d_arima120 <- 0
+p_sarima120 <- 0
+q_sarima120 <- 0
+P_sarima120 <- 0
+Q_sarima120 <- 0
+d_sarima120 <- 0
+D_sarima120 <- 0
+p_arima1200 <- 0
+q_arima1200 <- 0
+d_arima1200 <- 0
+p_sarima1200 <- 0
+q_sarima1200 <- 0
+P_sarima1200 <- 0
+Q_sarima1200 <- 0
+d_sarima1200 <- 0
+D_sarima1200 <- 0
+
+#実験を行う関数
+for(i in 1:100){
+	xt_aic <- sarima.Sim(100,period=12,model=list(order=c(1,0,1),ar=0.1,ma=0.1,sd=1),seasonal=list(order=c(P,D,Q),ar=rep(0.9/P,P),ma=rep(0.9/Q,Q)))
+
+	#訓練データ12個
+	xt_aic_12 <-  window(xt_aic, start = c(100,1))
+	arima12 <- auto.arima(xt_aic_12,stepwise=F,parallel=T,num.cores=8)
+	sarima12 <- auto.arima(xt_aic_12,stepwise=F,seasonal=T,parallel=T,num.cores=8)
+	p_arima12[i] <- arima12$arma[1]
+	q_arima12[i] <- arima12$arma[2]
+	d_arima12[i] <- arima12$arma[6]
+	p_sarima12[i] <- sarima12$arma[1]
+	q_sarima12[i] <- sarima12$arma[2]
+	P_sarima12[i] <- sarima12$arma[3]
+	Q_sarima12[i] <- sarima12$arma[4]	
+	d_sarima12[i] <- sarima12$arma[6]
+	D_sarima12[i] <- sarima12$arma[7]
+
+	#訓練データ120個
+	xt_aic_120 <- window(xt_aic, start = c(91,1))
+	arima120 <- auto.arima(xt_aic_120,stepwise=F,seasonal=F,parallel=T,num.cores=8)
+	sarima120 <- auto.arima(xt_aic_120,stepwise=F,seasonal=T,parallel=T,num.cores=8)
+	p_arima120[i] <- arima120$arma[1]
+	q_arima120[i] <- arima120$arma[2]
+	d_arima120[i] <- arima120$arma[6]
+	p_sarima120[i] <- sarima120$arma[1]
+	q_sarima120[i] <- sarima120$arma[2]
+	P_sarima120[i] <- sarima120$arma[3]
+	Q_sarima120[i] <- sarima120$arma[4]
+	d_sarima120[i] <- sarima120$arma[6]
+	D_sarima120[i] <- sarima120$arma[7]
+
+	#訓練データ1200個
+	arima1200 <- auto.arima(xt_aic,stepwise=F,seasonal=F,parallel=T,num.cores=8)
+	sarima1200 <- auto.arima(xt_aic,stepwise=F,seasonal=T,parallel=T,num.cores=8)
+	p_arima1200[i] <- arima1200$arma[1]
+	q_arima1200[i] <- arima1200$arma[2]
+	d_arima1200[i] <- arima1200$arma[6]
+	p_sarima1200[i] <- sarima1200$arma[1]
+	q_sarima1200[i] <- sarima1200$arma[2]
+	P_sarima1200[i] <- sarima1200$arma[3]
+	Q_sarima1200[i] <- sarima1200$arma[4]
+	d_sarima1200[i] <- sarima1200$arma[6]
+	D_sarima1200[i] <- sarima1200$arma[7]
+	print(i)
+}
+
+#下記変数の101部分をPDQに変更しながら実験
+p_arima12_101 <- p_arima12
+q_arima12_101 <- q_arima12
+d_arima12_101 <- d_arima12
+p_sarima12_101 <- p_sarima12
+q_sarima12_101 <- q_sarima12
+P_sarima12_101 <- P_sarima12
+Q_sarima12_101 <- Q_sarima12
+d_sarima12_101 <- d_sarima12
+D_sarima12_101 <- D_sarima12
+p_arima120_101 <- p_arima120
+q_arima120_101 <- q_arima120
+d_arima120_101 <- d_arima120
+p_sarima120_101 <- p_sarima120
+q_sarima120_101 <- q_sarima120
+P_sarima120_101 <- P_sarima120
+Q_sarima120_101 <- Q_sarima120
+d_sarima120_101 <- d_sarima120
+D_sarima120_101 <- D_sarima120
+p_arima1200_101 <- p_arima1200
+q_arima1200_101 <- q_arima1200
+d_arima1200_101 <- d_arima1200
+p_sarima1200_101 <- p_sarima1200
+q_sarima1200_101 <- q_sarima1200
+P_sarima1200_101 <- P_sarima1200
+Q_sarima1200_101 <- Q_sarima1200
+d_sarima1200_101 <- d_sarima1200
+D_sarima1200_101 <- D_sarima1200
+
+#まずここまで実行
+
+#全パターン実験終了後ここから実行
+
+#ユークリッド距離の計算
+sum_euclid_101 <- 0
+sum_euclid_111 <- 0
+sum_euclid_201 <- 0
+sum_euclid_211 <- 0
+sum_euclid_102 <- 0
+sum_euclid_112 <- 0
+sum_euclid_202 <- 0
+sum_euclid_212 <- 0
+
+
+for(i in 1:100){
+	sum_euclid_101 <- sum_euclid_101 + sqrt((p_sarima1200_101[i] - 1)^2 + (d_sarima1200_101[i] - 0)^2 + (q_sarima1200_101[i] - 1)^2 + (P_sarima1200_101[i] - 1)^2 + (D_sarima1200_101[i] - 0)^2 + (Q_sarima1200_101[i] - 1)^2)
+	sum_euclid_111 <- sum_euclid_111 + sqrt((p_sarima1200_111[i] - 1)^2 + (d_sarima1200_111[i] - 0)^2 + (q_sarima1200_111[i] - 1)^2 + (P_sarima1200_111[i] - 1)^2 + (D_sarima1200_111[i] - 1)^2 + (Q_sarima1200_111[i] - 1)^2)
+	sum_euclid_201 <- sum_euclid_201 + sqrt((p_sarima1200_201[i] - 1)^2 + (d_sarima1200_201[i] - 0)^2 + (q_sarima1200_201[i] - 1)^2 + (P_sarima1200_201[i] - 2)^2 + (D_sarima1200_201[i] - 0)^2 + (Q_sarima1200_201[i] - 1)^2)
+	sum_euclid_211 <- sum_euclid_211 + sqrt((p_sarima1200_211[i] - 1)^2 + (d_sarima1200_211[i] - 0)^2 + (q_sarima1200_211[i] - 1)^2 + (P_sarima1200_211[i] - 2)^2 + (D_sarima1200_211[i] - 1)^2 + (Q_sarima1200_211[i] - 1)^2)
+	sum_euclid_102 <- sum_euclid_102 + sqrt((p_sarima1200_102[i] - 1)^2 + (d_sarima1200_102[i] - 0)^2 + (q_sarima1200_102[i] - 1)^2 + (P_sarima1200_102[i] - 1)^2 + (D_sarima1200_102[i] - 0)^2 + (Q_sarima1200_102[i] - 2)^2)
+	sum_euclid_112 <- sum_euclid_112 + sqrt((p_sarima1200_112[i] - 1)^2 + (d_sarima1200_112[i] - 0)^2 + (q_sarima1200_112[i] - 1)^2 + (P_sarima1200_112[i] - 1)^2 + (D_sarima1200_112[i] - 1)^2 + (Q_sarima1200_112[i] - 2)^2)
+	sum_euclid_202 <- sum_euclid_202 + sqrt((p_sarima1200_202[i] - 1)^2 + (d_sarima1200_202[i] - 0)^2 + (q_sarima1200_202[i] - 1)^2 + (P_sarima1200_202[i] - 2)^2 + (D_sarima1200_202[i] - 0)^2 + (Q_sarima1200_202[i] - 2)^2)
+	sum_euclid_212 <- sum_euclid_212 + sqrt((p_sarima1200_212[i] - 1)^2 + (d_sarima1200_212[i] - 0)^2 + (q_sarima1200_212[i] - 1)^2 + (P_sarima1200_212[i] - 2)^2 + (D_sarima1200_212[i] - 1)^2 + (Q_sarima1200_212[i] - 2)^2)
+}
+
+euclid_101 <- sum_euclid_101 / 100
+euclid_111 <- sum_euclid_111 / 100
+euclid_201 <- sum_euclid_201 / 100
+euclid_211 <- sum_euclid_211 / 100
+euclid_102 <- sum_euclid_102 / 100
+euclid_112 <- sum_euclid_112 / 100
+euclid_202 <- sum_euclid_202 / 100
+euclid_212 <- sum_euclid_212 / 100
+
+
+euclid_101
+euclid_111
+euclid_201
+euclid_211
+euclid_102
+euclid_112
+euclid_202
+euclid_212

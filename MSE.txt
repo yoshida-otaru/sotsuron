@@ -1,0 +1,60 @@
+library(forecast)
+
+
+#実験で設定する変数
+n <- 12	#訓練データの個数(12 or 120 or 1200)
+p <- 1		#ARIMA(p,d,q)モデルの次数p(1 or 3)
+d <- 0		#ARIMA(p,d,q)モデルの次数d(0 or 1)
+q <- 1		#ARIMA(p,d,q)モデルの次数q(1 or 3)
+h <- 10		#季節変動の高低差(10 or 4 or 1)
+
+#宣言が必要な変数
+sum_err_mse.arima <- 0
+sum_err_mse.sarima <- 0
+sum_mse.arima <- 0
+sum_mse.sarima <- 0
+result <- 0
+
+#実験を行う関数
+for(i in 1:100){
+
+	x1_mse <- arima.sim(n+24-d, model=list(order=c(p,d,q),ar=rep(0.1,p),ma=rep(0.1,q)))
+	x2_mse <- c(rep(c(h,rep(0,11)),n/12),rep(c(h,rep(0,11)),2))
+
+	x_mse <- x1_mse + x2_mse
+	xt_mse <- ts(as.numeric(x_mse),frequency = 12)
+
+	train_mse <- window(xt_mse, end = c(n/12,12))
+	test_mse <- window(xt_mse, start = c((n/12)+1,1))
+	train_mse.arima <- auto.arima(train_mse,stepwise = F,seasonal = F,parallel = T,num.cores = 8)
+	train_mse.sarima <- auto.arima(train_mse,stepwise = F,seasonal = T,parallel = T,num.cores = 8)
+	pred_train_mse.arima <- forecast(train_mse.arima,h = 24)
+	pred_train_mse.sarima <- forecast(train_mse.sarima,h = 24)
+	err_mse.arima <- (pred_train_mse.arima$mean - test_mse)^2
+	err_mse.sarima <- (pred_train_mse.sarima$mean - test_mse)^2
+
+	for(j in 1:24){
+		sum_err_mse.arima <- sum_err_mse.arima + err_mse.arima[j]
+		sum_err_mse.sarima <- sum_err_mse.sarima + err_mse.sarima[j]
+	}
+
+	mse.arima <- sum_err_mse.arima/24
+	mse.sarima <- sum_err_mse.sarima/24
+
+	result <- c(i, mse.sarima , mse.arima)
+	print(result)
+
+	sum_mse.arima <- sum_mse.arima + mse.arima
+	sum_mse.sarima <- sum_mse.sarima + mse.sarima
+
+	sum_err_mse.arima <- 0
+	sum_err_mse.sarima <- 0
+}
+
+print("実験回数 / MSE・SARIMA / MSE・ARIMA")
+
+mean_mse.sarima <- sum_mse.sarima/100
+mean_mse.arima <- sum_mse.arima/100
+mean_mse <- c(mean_mse.sarima , mean_mse.arima)
+print(mean_mse)
+

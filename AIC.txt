@@ -1,0 +1,84 @@
+library(forecast)
+library(CombMSC)
+
+
+#実験で設定する変数
+P <- 1		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数P(1 or 2)
+D <- 0		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数D(0 or 1)
+Q <- 1		#真のSARIMA(1,0,1)(P,D,Q)[12]モデルの次数Q(1 or 2)
+
+
+#実験を行う関数
+xt_aic <- sarima.Sim(100,period=12,model=list(order=c(1,0,1),ar=0.1,ma=0.1,sd=1),seasonal=list(order=c(P,D,Q),ar=rep(0.9/P,P),ma=rep(0.9/Q,Q)))
+
+#訓練データ12個
+xt_aic_12 <-  window(xt_aic, start = c(100,1))
+xt_aic_12.sarima <- arima(xt_aic_12, order=c(1,0,1))
+auto.arima(xt_aic_12,stepwise=F,trace=T)
+
+#訓練データ120個
+xt_aic_120 <- window(xt_aic, start = c(91,1))
+xt_aic_120.sarima <- arima(xt_aic_120, order=c(1,0,1), seasonal=list(order=c(P,D,Q), period=12))
+auto.arima(xt_aic_120,stepwise=F,trace=T,seasonal=F,d=0)
+
+#訓練データ1200個
+xt_aic.sarima <- arima(xt_aic, order=c(1,0,1), seasonal=list(order=c(P,D,Q), period=12))
+auto.arima(xt_aic,stepwise=F,trace=T,seasonal=F,d=0)
+
+#まずここまで実行
+
+#下の数値を入力してここから再開
+
+#3種類の訓練データ数すべてで実数値のAICを返したARIMAモデルのみ対象
+#訓練データ12個でのパラメータ推定時にAIC最大のARIMAモデルのパラメータpを入れる
+max_aic.arima_p <- 4
+
+#訓練データ12個でのパラメータ推定時にAIC最大のARIMAモデルのパラメータdを入れる
+max_aic.arima_d <- 0
+
+#訓練データ12個でのパラメータ推定時にAIC最大のARIMAモデルのパラメータqを入れる
+max_aic.arima_q <- 0
+
+#訓練データ12個でのパラメータ推定時にAIC最小のARIMAモデルのパラメータpを入れる
+min_aic.arima_p <- 0
+
+#訓練データ12個でのパラメータ推定時にAIC最小のARIMAモデルのパラメータdを入れる
+min_aic.arima_d <- 0
+
+#訓練データ12個でのパラメータ推定時にAIC最小のARIMAモデルのパラメータqを入れる
+min_aic.arima_q <- 0
+
+#途中でinfが返されている場合，次に最大または最小のものを入れなおして，「下の数値を入力してここから再開」の部分から実行しなおす。
+
+max_aic.arima　<- arima(xt_aic_12, order=c(max_aic.arima_p,max_aic.arima_d,max_aic.arima_q))
+min_aic.arima　<- arima(xt_aic_12, order=c(min_aic.arima_p,min_aic.arima_d,min_aic.arima_q))
+
+aicmax.arima_12 <- AIC(max_aic.arima)
+aicmin.arima_12 <- AIC(min_aic.arima)
+aic.sarima_12 <- AIC(xt_aic_12.sarima)
+
+
+max_aic.arima　<- arima(xt_aic_120, order=c(max_aic.arima_p,max_aic.arima_d,max_aic.arima_q))
+min_aic.arima　<- arima(xt_aic_120, order=c(min_aic.arima_p,min_aic.arima_d,min_aic.arima_q))
+
+aicmax.arima_120 <- AIC(max_aic.arima)
+aicmin.arima_120 <- AIC(min_aic.arima)
+aic.sarima_120 <- AIC(xt_aic_120.sarima)
+
+
+max_aic.arima　<- arima(xt_aic, order=c(max_aic.arima_p,max_aic.arima_d,max_aic.arima_q))
+min_aic.arima　<- arima(xt_aic, order=c(min_aic.arima_p,min_aic.arima_d,min_aic.arima_q))
+
+aicmax.arima_1200 <- AIC(max_aic.arima)
+aicmin.arima_1200 <- AIC(min_aic.arima)
+aic.sarima_1200 <- AIC(xt_aic.sarima)
+
+result_12 <- c(aic.sarima_12,aicmax.arima_12,aicmin.arima_12)
+result_120 <- c(aic.sarima_120,aicmax.arima_120,aicmin.arima_120)
+result_1200 <- c(aic.sarima_1200,aicmax.arima_1200,aicmin.arima_1200)
+
+print(result_12)
+print(result_120)
+print(result_1200)
+
+

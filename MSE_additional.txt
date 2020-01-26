@@ -1,0 +1,195 @@
+library(forecast)
+
+
+#実験で変更する変数
+p <- 1		#ARIMA(p,d,q)モデルの次数p(1 or 3)
+d <- 0		#ARIMA(p,d,q)モデルの次数d(0 or 1)
+q <- 1		#ARIMA(p,d,q)モデルの次数q(1 or 3)
+
+#n=12
+n <- 12		#訓練データの個数(12 or 120 or 1200)
+h <- 1		#季節変動の高低差
+
+#宣言が必要な変数
+p_arima12 <- 0
+q_arima12 <- 0
+d_arima12 <- 0
+p_sarima12 <- 0
+q_sarima12 <- 0
+P_sarima12 <- 0
+Q_sarima12 <- 0
+d_sarima12 <- 0
+D_sarima12 <- 0
+
+#実験を行う関数
+for(i in 1:100){
+
+	x1_mse <- arima.sim(n+24-d, model=list(order=c(p,d,q),ar=rep(0.1,p),ma=rep(0.1,q)))
+	x2_mse <- c(rep(c(h,rep(0,11)),n/12),rep(c(h,rep(0,11)),2))
+
+	x_mse <- x1_mse + x2_mse
+	xt_mse <- ts(as.numeric(x_mse),frequency = 12)
+
+	train_mse <- window(xt_mse, end = c(n/12,12))
+	test_mse <- window(xt_mse, start = c((n/12)+1,1))
+	arima12 <- auto.arima(train_mse,stepwise = F,seasonal = F,parallel = T,num.cores = 8)
+	sarima12 <- auto.arima(train_mse,stepwise = F,seasonal = T,parallel = T,num.cores = 8)
+
+	p_arima12[i] <- arima12$arma[1]
+	q_arima12[i] <- arima12$arma[2]
+	d_arima12[i] <- arima12$arma[6]
+	p_sarima12[i] <- sarima12$arma[1]
+	q_sarima12[i] <- sarima12$arma[2]
+	P_sarima12[i] <- sarima12$arma[3]
+	Q_sarima12[i] <- sarima12$arma[4]
+	d_sarima12[i] <- sarima12$arma[6]
+	D_sarima12[i] <- sarima12$arma[7]
+	print(i)
+}
+
+#下の101部分をpdqに変更しながら実験
+p_arima12_101 <- p_arima12
+q_arima12_101 <- q_arima12
+d_arima12_101 <- d_arima12
+p_sarima12_101 <- p_sarima12
+q_sarima12_101 <- q_sarima12
+P_sarima12_101 <- P_sarima12
+Q_sarima12_101 <- Q_sarima12
+d_sarima12_101 <- d_sarima12
+D_sarima12_101 <- D_sarima12
+
+#ユークリッド距離の計算
+sum_euclid_101_12 <- 0
+
+for(i in 1:100){
+	sum_euclid_101_12 <- sum_euclid_101_12 + sqrt((p_arima12_101[i] - p)^2 + (d_arima12_101[i] - d)^2 + (q_arima12_101[i] - q)^2)
+}
+
+euclid_101_12 <- sum_euclid_101_12 / 100
+
+
+#n=120
+n <- 120	#訓練データの個数(12 or 120 or 1200)
+h <- 1		#季節変動の高低差
+
+#宣言が必要な変数
+p_arima120 <- 0
+q_arima120 <- 0
+d_arima120 <- 0
+p_sarima120 <- 0
+q_sarima120 <- 0
+P_sarima120 <- 0
+Q_sarima120 <- 0
+d_sarima120 <- 0
+D_sarima120 <- 0
+
+#実験を行う関数
+for(i in 1:100){
+
+	x1_mse <- arima.sim(n+24-d, model=list(order=c(p,d,q),ar=rep(0.1,p),ma=rep(0.1,q)))
+	x2_mse <- c(rep(c(h,rep(0,11)),n/12),rep(c(h,rep(0,11)),2))
+
+	x_mse <- x1_mse + x2_mse
+	xt_mse <- ts(as.numeric(x_mse),frequency = 12)
+
+	train_mse <- window(xt_mse, end = c(n/12,12))
+	test_mse <- window(xt_mse, start = c((n/12)+1,1))
+	arima120 <- auto.arima(train_mse,stepwise = F,seasonal = F,parallel = T,num.cores = 8)
+	sarima120 <- auto.arima(train_mse,stepwise = F,seasonal = T,parallel = T,num.cores = 8)
+
+	p_arima120[i] <- arima120$arma[1]
+	q_arima120[i] <- arima120$arma[2]
+	d_arima120[i] <- arima120$arma[6]
+	p_sarima120[i] <- sarima120$arma[1]
+	q_sarima120[i] <- sarima120$arma[2]
+	P_sarima120[i] <- sarima120$arma[3]
+	Q_sarima120[i] <- sarima120$arma[4]
+	d_sarima120[i] <- sarima120$arma[6]
+	D_sarima120[i] <- sarima120$arma[7]
+	print(i)
+}
+
+#下の101部分をpdqに変更しながら実験
+p_arima120_101 <- p_arima120
+q_arima120_101 <- q_arima120
+d_arima120_101 <- d_arima120
+p_sarima120_101 <- p_sarima120
+q_sarima120_101 <- q_sarima120
+P_sarima120_101 <- P_sarima120
+Q_sarima120_101 <- Q_sarima120
+d_sarima120_101 <- d_sarima120
+D_sarima120_101 <- D_sarima120
+
+#ユークリッド距離の計算
+sum_euclid_101_120 <- 0
+
+for(i in 1:100){
+	sum_euclid_101_120 <- sum_euclid_101_120 + sqrt((p_arima120_101[i] - p)^2 + (d_arima120_101[i] - d)^2 + (q_arima120_101[i] - q)^2)
+}
+
+euclid_101_120 <- sum_euclid_101_120 / 100
+
+
+
+#n=1200
+n <- 1200	#訓練データの個数(12 or 120 or 1200)
+h <- 1		#季節変動の高低差
+
+#宣言が必要な変数
+p_arima1200 <- 0
+q_arima1200 <- 0
+d_arima1200 <- 0
+p_sarima1200 <- 0
+q_sarima1200 <- 0
+P_sarima1200 <- 0
+Q_sarima1200 <- 0
+d_sarima1200 <- 0
+D_sarima1200 <- 0
+
+#実験を行う関数
+for(i in 1:100){
+
+	x1_mse <- arima.sim(n+24-d, model=list(order=c(p,d,q),ar=rep(0.1,p),ma=rep(0.1,q)))
+	x2_mse <- c(rep(c(h,rep(0,11)),n/12),rep(c(h,rep(0,11)),2))
+
+	x_mse <- x1_mse + x2_mse
+	xt_mse <- ts(as.numeric(x_mse),frequency = 12)
+
+	train_mse <- window(xt_mse, end = c(n/12,12))
+	test_mse <- window(xt_mse, start = c((n/12)+1,1))
+	arima1200 <- auto.arima(train_mse,stepwise = F,seasonal = F,parallel = T,num.cores = 8)
+	sarima1200 <- auto.arima(train_mse,stepwise = F,seasonal = T,parallel = T,num.cores = 8)
+
+	p_arima1200[i] <- arima1200$arma[1]
+	q_arima1200[i] <- arima1200$arma[2]
+	d_arima1200[i] <- arima1200$arma[6]
+	p_sarima1200[i] <- sarima1200$arma[1]
+	q_sarima1200[i] <- sarima1200$arma[2]
+	P_sarima1200[i] <- sarima1200$arma[3]
+	Q_sarima1200[i] <- sarima1200$arma[4]
+	d_sarima1200[i] <- sarima1200$arma[6]
+	D_sarima1200[i] <- sarima1200$arma[7]
+	print(i)
+}
+
+#下の101部分をpdqに変更しながら実験
+p_arima1200_101 <- p_arima1200
+q_arima1200_101 <- q_arima1200
+d_arima1200_101 <- d_arima1200
+p_sarima1200_101 <- p_sarima1200
+q_sarima1200_101 <- q_sarima1200
+P_sarima1200_101 <- P_sarima1200
+Q_sarima1200_101 <- Q_sarima1200
+d_sarima1200_101 <- d_sarima1200
+D_sarima1200_101 <- D_sarima1200
+
+#ユークリッド距離の計算
+sum_euclid_101_1200 <- 0
+
+for(i in 1:100){
+	sum_euclid_101_1200 <- sum_euclid_101_1200 + sqrt((p_arima1200_101[i] - p)^2 + (d_arima1200_101[i] - d)^2 + (q_arima1200_101[i] - q)^2)
+}
+
+euclid_101_1200 <- sum_euclid_101_1200 / 100
+
+
